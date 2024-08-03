@@ -124,3 +124,49 @@
   background-color: #cd42df;
   color: white;
 }
+
+.overlay {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.548);
+}
+
+.uploadImageModal {
+  position: absolute;
+  width: 80%;
+  background-color: white;
+  box-shadow: 4px 7px 11px 5px #0000000d;
+  border-radius: 8px;
+  right: 50%;
+  bottom: 50%;
+  transform: translate(50%, 50%);
+  z-index: 2;
+  padding: 8px;
+}
+
+.uploadImageModal__imageContainer {
+  position: relative;
+  height: 300px;
+  width: auto;
+  background-color: rgb(224, 224, 224);
+}
+
+.captionContainer {
+  width: 100%;
+  display: flex;
+  padding: 4px;
+  padding-top: 10px;
+}
+
+.captionContainer input {
+  border: none;
+  text-indent: 8px;
+  flex: 1;
+}
+
+.captionContainer input:focus-visible {
+  outline: none;
+}

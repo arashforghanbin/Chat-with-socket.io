@@ -1,7 +1,13 @@
-import React, { FormEvent, useEffect, useRef, useState } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import style from "./chat.module.css";
 import { AttachCircle, Send } from "iconsax-react";
-import useDisconnectionStore from "@/store/useDisconnectionStore";
+import Image from "next/image";
 
 interface IChat {
   socket: any;
@@ -12,8 +18,8 @@ interface IChat {
 const Chat = ({ socket, username, room }: IChat) => {
   const [currentMessage, setCurrentMesssage] = useState("");
   const [messageList, setMessageList] = useState<any>([]);
-
-  const { socketDisconnected } = useDisconnectionStore((state) => state);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [showModal, setShowModal] = useState(false);
 
   const sendMessage = async (e: FormEvent) => {
     e.preventDefault();
@@ -43,7 +49,22 @@ const Chat = ({ socket, username, room }: IChat) => {
   const attachRef = useRef<any>();
 
   const handleAttachClick = () => {
-    console.log(attachRef.current.click());
+    if (attachRef.current) {
+      attachRef.current.click();
+    }
+  };
+
+  const handleChangeFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const imageDataUrl = reader.result as string;
+        setSelectedImage(imageDataUrl);
+        setShowModal(true);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -94,6 +115,7 @@ const Chat = ({ socket, username, room }: IChat) => {
             {!currentMessage ? (
               <>
                 <input
+                  onChange={handleChangeFile}
                   style={{ display: "none" }}
                   ref={attachRef}
                   type="file"
@@ -116,6 +138,24 @@ const Chat = ({ socket, username, room }: IChat) => {
           </div>
         </form>
       </div>
+      {selectedImage && showModal && (
+        <>
+          <div onClick={() => setShowModal(false)} className={style.overlay} />
+          <div className={style.uploadImageModal}>
+            <div className={style.uploadImageModal__imageContainer}>
+              {selectedImage && (
+                <Image src={selectedImage} alt="" fill objectFit="contain" />
+              )}
+            </div>
+            <div className={style.captionContainer}>
+              <input placeholder="Caption..." type="text" />
+              <button type="submit" className={`${style.sendButton}`}>
+                <Send size="28" color="#428adf" variant="Bold" />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
