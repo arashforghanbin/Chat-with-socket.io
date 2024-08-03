@@ -7,8 +7,13 @@
   font-family: Roboto;
 }
 
+html {
+  height: 100vh;
+}
+
 body {
   background-color: #eeeeee;
+  height: 100%;
 }
 
 ::-webkit-scrollbar {

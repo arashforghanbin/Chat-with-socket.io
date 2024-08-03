@@ -1,6 +1,6 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import style from "./chat.module.css";
-import { Send } from "iconsax-react";
+import { AttachCircle, Send } from "iconsax-react";
 import useDisconnectionStore from "@/store/useDisconnectionStore";
 
 interface IChat {
@@ -23,9 +23,9 @@ const Chat = ({ socket, username, room }: IChat) => {
         author: username,
         message: currentMessage,
         time:
-          new Date(Date.now()).getHours() +
+          new Date(Date.now()).getHours().toString().padStart(2, "0") +
           ":" +
-          new Date(Date.now()).getMinutes(),
+          new Date(Date.now()).getMinutes().toString().padStart(2, "0"),
       };
 
       await socket.emit("send_message", messageData);
@@ -40,22 +40,31 @@ const Chat = ({ socket, username, room }: IChat) => {
     });
   }, [socket]);
 
+  const attachRef = useRef<any>();
+
+  const handleAttachClick = () => {
+    console.log(attachRef.current.click());
+  };
+
   return (
     <div className={style.chat_container}>
       <div className={style.chat_header}>
-        <h4>Live Chat</h4>
+        <h4>{room}</h4>
       </div>
       <div className={style.chat_body}>
         {messageList &&
           messageList.map((item: any, index: number) => (
             <div
-              className={`${
+              className={`${style.speechContainer} ${
                 username === item.author
                   ? style.speechContainerMe
                   : style.speechContainerOther
-              }`}
+              } `}
               key={index}
             >
+              <div className={style.avatar}>
+                <p>{item.author.substring(0, 1).toUpperCase()}</p>
+              </div>
               <div
                 className={`${
                   username === item.author
@@ -63,7 +72,9 @@ const Chat = ({ socket, username, room }: IChat) => {
                     : style.speechBubbleOther
                 } ${style.speechBubble}`}
               >
+                <p className={style.authorTitle}>{item.author}</p>
                 <p>{item.message}</p>
+                <p className={style.time}>{item.time}</p>
               </div>
             </div>
           ))}
@@ -80,13 +91,28 @@ const Chat = ({ socket, username, room }: IChat) => {
                 setCurrentMesssage(e.target.value);
               }}
             />
-            <button
-              disabled={socketDisconnected}
-              type="submit"
-              className={`${style.sendButton}`}
-            >
-              <Send size="28" color="#fff" variant="Bold" />
-            </button>
+            {!currentMessage ? (
+              <>
+                <input
+                  style={{ display: "none" }}
+                  ref={attachRef}
+                  type="file"
+                />
+                <button
+                  onClick={handleAttachClick}
+                  type="button"
+                  className={`${style.sendButton}`}
+                >
+                  <AttachCircle size="28" color="#428adf" variant="Bold" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button type="submit" className={`${style.sendButton}`}>
+                  <Send size="28" color="#428adf" variant="Bold" />
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>
