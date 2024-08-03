@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
 import style from "./chat.module.css";
 import { Send } from "iconsax-react";
+import useDisconnectionStore from "@/store/useDisconnectionStore";
 
 interface IChat {
   socket: any;
@@ -12,7 +13,10 @@ const Chat = ({ socket, username, room }: IChat) => {
   const [currentMessage, setCurrentMesssage] = useState("");
   const [messageList, setMessageList] = useState<any>([]);
 
-  const sendMessage = async () => {
+  const { socketDisconnected } = useDisconnectionStore((state) => state);
+
+  const sendMessage = async (e: FormEvent) => {
+    e.preventDefault();
     if (currentMessage) {
       const messageData = {
         room,
@@ -65,20 +69,26 @@ const Chat = ({ socket, username, room }: IChat) => {
           ))}
       </div>
       <div className={style.chat_footer}>
-        <div className={style.inputContainer}>
-          <input
-            className={style.messageInput}
-            type="text"
-            value={currentMessage}
-            placeholder="message ..."
-            onChange={(e) => {
-              setCurrentMesssage(e.target.value);
-            }}
-          />
-          <button className={style.sendButton} onClick={sendMessage}>
-            <Send size="28" color="#fff" variant="Bold" />
-          </button>
-        </div>
+        <form onSubmit={sendMessage}>
+          <div className={style.inputContainer}>
+            <input
+              className={style.messageInput}
+              type="text"
+              value={currentMessage}
+              placeholder="message ..."
+              onChange={(e) => {
+                setCurrentMesssage(e.target.value);
+              }}
+            />
+            <button
+              disabled={socketDisconnected}
+              type="submit"
+              className={`${style.sendButton}`}
+            >
+              <Send size="28" color="#fff" variant="Bold" />
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

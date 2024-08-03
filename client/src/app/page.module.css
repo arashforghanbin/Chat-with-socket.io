@@ -43,3 +43,14 @@
 .joinButton:active {
   background-color: #356eb2;
 }
+
+.disabledButton {
+  all: unset;
+  box-sizing: border-box;
+  background-color: #eee;
+  color: #cfcfcf;
+  padding: 8px 16px;
+  width: 100%;
+  border-radius: 4px;
+  text-align: center;
+}

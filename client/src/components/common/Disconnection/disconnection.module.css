@@ -1,0 +1,13 @@
+.disconnectContainer {
+  background-color: #db4848;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px;
+}
+
+.text {
+  color: white;
+  font-size: 12px;
+}

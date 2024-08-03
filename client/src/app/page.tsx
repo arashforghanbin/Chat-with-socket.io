@@ -4,8 +4,9 @@ import { useState } from "react";
 import styles from "./page.module.css";
 import io from "socket.io-client";
 import Chat from "@/components/chat";
+import useDisconnectionStore from "@/store/useDisconnectionStore";
 
-const socket = io("http://localhost:8001", {
+const socket = io("http://192.168.100.103:8001", {
   transports: ["websocket"],
 });
 
@@ -20,6 +21,9 @@ export default function Home() {
       setShowChat(true);
     }
   };
+
+  const { socketDisconnected } = useDisconnectionStore((state) => state);
+  console.log(socketDisconnected);
 
   return (
     <>
@@ -38,7 +42,13 @@ export default function Home() {
             placeholder="Room ..."
             onChange={(e) => setRoom(e.target.value)}
           />
-          <button className={styles.joinButton} onClick={joinRoom}>
+          <button
+            disabled={socketDisconnected}
+            className={` ${
+              socketDisconnected ? styles.disabledButton : styles.joinButton
+            }`}
+            onClick={joinRoom}
+          >
             Join The Room
           </button>
         </main>
