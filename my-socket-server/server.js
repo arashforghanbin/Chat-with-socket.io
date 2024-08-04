@@ -11,10 +11,10 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: [
-      "https://localhost:3000",
-      "https://localhost:3001",
-      "https://192.168.100.160:3001",
-      "https://192.168.100.160:3000",
+      "http://localhost:3000",
+      "http://localhost:3001",
+      "http://192.168.100.160:3001",
+      "http://192.168.100.160:3000",
     ],
   },
 });

@@ -6,8 +6,10 @@ import React, {
   useState,
 } from "react";
 import style from "./chat.module.css";
-import { AttachCircle, Send } from "iconsax-react";
+import { AttachCircle, CloseCircle, Send } from "iconsax-react";
 import Image from "next/image";
+import UploadImageModal from "../UploadImageModal";
+import AvatarModal from "../AvatarModal";
 
 interface IChat {
   socket: any;
@@ -21,6 +23,8 @@ const Chat = ({ socket, username, room }: IChat) => {
   const [selectedImage, setSelectedImage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [imageCaption, setImageCaption] = useState("");
+  const [displayFullImage, setDisplayFullImage] = useState(false);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const sendMessage = async (e: FormEvent) => {
     e.preventDefault();
@@ -75,6 +79,35 @@ const Chat = ({ socket, username, room }: IChat) => {
     }
   };
 
+  const FullImage = ({ image }: { image: string }) => {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          zIndex: 3,
+          right: 0,
+          left: 0,
+          bottom: 0,
+          top: 0,
+          backgroundColor: "black",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <div
+          onClick={() => setDisplayFullImage(false)}
+          style={{ position: "fixed", top: 0, right: 0, padding: "8px" }}
+        >
+          <CloseCircle size="32" color="white" />
+        </div>
+        <div style={{ position: "relative", width: "90%", height: "90%" }}>
+          <Image alt="" src={image} fill objectFit="contain" />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={style.chat_container}>
       <div className={style.chat_header}>
@@ -83,37 +116,54 @@ const Chat = ({ socket, username, room }: IChat) => {
       <div className={style.chat_body}>
         {messageList &&
           messageList.map((item: any, index: number) => (
-            <div
-              className={`${style.speechContainer} ${
-                username === item.author
-                  ? style.speechContainerMe
-                  : style.speechContainerOther
-              } `}
-              key={index}
-            >
-              <div className={style.avatar}>
-                <p>{item.author.substring(0, 1).toUpperCase()}</p>
-              </div>
+            <>
               <div
-                className={`${
+                className={`${style.speechContainer} ${
                   username === item.author
-                    ? style.speechBubbleMe
-                    : style.speechBubbleOther
-                } ${style.speechBubble}`}
+                    ? style.speechContainerMe
+                    : style.speechContainerOther
+                } `}
+                key={index}
               >
-                <p className={style.authorTitle}>{item.author}</p>
-                <p>{item.message}</p>
-                {item.image && (
-                  <>
-                    <div className={style.messageBoxImageContainer}>
-                      <Image src={item.image} fill objectFit="cover" alt="" />
-                    </div>
-                    <p>{item.imageCaption}</p>
-                  </>
-                )}
-                <p className={style.time}>{item.time}</p>
+                <div
+                  onClick={() => setShowAvatarModal(true)}
+                  className={style.avatar}
+                >
+                  <p>{item.author.substring(0, 1).toUpperCase()}</p>
+                </div>
+                <div
+                  className={`${
+                    username === item.author
+                      ? style.speechBubbleMe
+                      : style.speechBubbleOther
+                  } ${style.speechBubble}`}
+                >
+                  <p className={style.authorTitle}>{item.author}</p>
+                  <p>{item.message}</p>
+                  {item.image && (
+                    <>
+                      <div
+                        onClick={() => setDisplayFullImage(true)}
+                        className={style.messageBoxImageContainer}
+                      >
+                        <Image src={item.image} fill objectFit="cover" alt="" />
+                      </div>
+                      <p>{item.imageCaption}</p>
+                    </>
+                  )}
+                  <p className={style.time}>{item.time}</p>
+                </div>
               </div>
-            </div>
+              {displayFullImage && item.image && (
+                <FullImage image={item.image} />
+              )}
+              {showAvatarModal && item.author && (
+                <AvatarModal
+                  setShowAvatarModal={setShowAvatarModal}
+                  name={item.author.substring(0, 1).toUpperCase()}
+                />
+              )}
+            </>
           ))}
       </div>
       <div className={style.chat_footer}>
@@ -154,29 +204,14 @@ const Chat = ({ socket, username, room }: IChat) => {
           </div>
         </form>
       </div>
-      {selectedImage && showModal && (
-        <>
-          <div onClick={() => setShowModal(false)} className={style.overlay} />
-          <div className={style.uploadImageModal}>
-            <div className={style.uploadImageModal__imageContainer}>
-              {selectedImage && (
-                <Image src={selectedImage} alt="" fill objectFit="contain" />
-              )}
-            </div>
-            <div className={style.captionContainer}>
-              <input
-                value={imageCaption}
-                onChange={(e) => setImageCaption(e.target.value)}
-                placeholder="Caption..."
-                type="text"
-              />
-              <button onClick={sendMessage} className={`${style.sendButton}`}>
-                <Send size="28" color="#428adf" variant="Bold" />
-              </button>
-            </div>
-          </div>
-        </>
-      )}
+      <UploadImageModal
+        imageCaption={imageCaption}
+        selectedImage={selectedImage}
+        sendMessage={sendMessage}
+        setImageCaption={setImageCaption}
+        setShowModal={setShowModal}
+        showModal={showModal}
+      />
     </div>
   );
 };
