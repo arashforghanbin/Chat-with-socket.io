@@ -10,7 +10,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://localhost:3000",
+    origin: [
+      "https://localhost:3000",
+      "https://localhost:3001",
+      "https://192.168.100.160:3001",
+      "https://192.168.100.160:3000",
+    ],
   },
 });
 
@@ -22,11 +27,13 @@ io.on("connection", (socket) => {
   console.log(`a user connected: ${socket.id}`);
 
   socket.on("join_room", (data) => {
+    console.log(data);
     socket.join(data);
     console.log(`user ${socket.id} joined joined the room ${data}`);
   });
 
   socket.on("send_message", (messageData) => {
+    console.log(messageData);
     socket.to(messageData.room).emit("receive_message", messageData);
   });
 

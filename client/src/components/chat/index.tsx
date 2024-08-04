@@ -41,12 +41,14 @@ const Chat = ({ socket, username, room }: IChat) => {
       setMessageList((list: any) => [...list, messageData]);
       setCurrentMesssage("");
       setImageCaption("");
+      setSelectedImage("");
       setShowModal(false);
     }
   };
 
   useEffect(() => {
     socket.on("receive_message", (data: any) => {
+      console.log(data);
       setMessageList((list: any) => [...list, data]);
     });
   }, [socket]);
@@ -60,6 +62,7 @@ const Chat = ({ socket, username, room }: IChat) => {
   };
 
   const handleChangeFile = (e: ChangeEvent<HTMLInputElement>) => {
+    setSelectedImage("");
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
