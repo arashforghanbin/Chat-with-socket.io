@@ -20,10 +20,11 @@ const Chat = ({ socket, username, room }: IChat) => {
   const [messageList, setMessageList] = useState<any>([]);
   const [selectedImage, setSelectedImage] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [imageCaption, setImageCaption] = useState("");
 
   const sendMessage = async (e: FormEvent) => {
     e.preventDefault();
-    if (currentMessage) {
+    if (currentMessage || selectedImage) {
       const messageData = {
         room,
         author: username,
@@ -32,11 +33,15 @@ const Chat = ({ socket, username, room }: IChat) => {
           new Date(Date.now()).getHours().toString().padStart(2, "0") +
           ":" +
           new Date(Date.now()).getMinutes().toString().padStart(2, "0"),
+        image: selectedImage ? selectedImage : null,
+        imageCaption: imageCaption ? imageCaption : "",
       };
 
       await socket.emit("send_message", messageData);
       setMessageList((list: any) => [...list, messageData]);
       setCurrentMesssage("");
+      setImageCaption("");
+      setShowModal(false);
     }
   };
 
@@ -95,6 +100,14 @@ const Chat = ({ socket, username, room }: IChat) => {
               >
                 <p className={style.authorTitle}>{item.author}</p>
                 <p>{item.message}</p>
+                {item.image && (
+                  <>
+                    <div className={style.messageBoxImageContainer}>
+                      <Image src={item.image} fill objectFit="cover" alt="" />
+                    </div>
+                    <p>{item.imageCaption}</p>
+                  </>
+                )}
                 <p className={style.time}>{item.time}</p>
               </div>
             </div>
@@ -148,8 +161,13 @@ const Chat = ({ socket, username, room }: IChat) => {
               )}
             </div>
             <div className={style.captionContainer}>
-              <input placeholder="Caption..." type="text" />
-              <button type="submit" className={`${style.sendButton}`}>
+              <input
+                value={imageCaption}
+                onChange={(e) => setImageCaption(e.target.value)}
+                placeholder="Caption..."
+                type="text"
+              />
+              <button onClick={sendMessage} className={`${style.sendButton}`}>
                 <Send size="28" color="#428adf" variant="Bold" />
               </button>
             </div>

@@ -170,3 +170,9 @@
 .captionContainer input:focus-visible {
   outline: none;
 }
+
+.messageBoxImageContainer {
+  height: 200px;
+  width: auto;
+  position: relative;
+}
