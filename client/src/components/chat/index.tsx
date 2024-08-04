@@ -23,7 +23,7 @@ const Chat = ({ socket, username, room }: IChat) => {
   const [selectedImage, setSelectedImage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [imageCaption, setImageCaption] = useState("");
-  const [displayFullImage, setDisplayFullImage] = useState(false);
+  const [displayFullImage, setDisplayFullImage] = useState<number>(-1);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
 
   const sendMessage = async (e: FormEvent) => {
@@ -96,13 +96,20 @@ const Chat = ({ socket, username, room }: IChat) => {
         }}
       >
         <div
-          onClick={() => setDisplayFullImage(false)}
+          onClick={() => setDisplayFullImage(-1)}
           style={{ position: "fixed", top: 0, right: 0, padding: "8px" }}
         >
           <CloseCircle size="32" color="white" />
         </div>
         <div style={{ position: "relative", width: "90%", height: "90%" }}>
-          <Image alt="" src={image} fill objectFit="contain" />
+          {displayFullImage !== -1 && (
+            <Image
+              alt=""
+              src={messageList[displayFullImage].image}
+              fill
+              objectFit="contain"
+            />
+          )}
         </div>
       </div>
     );
@@ -143,7 +150,7 @@ const Chat = ({ socket, username, room }: IChat) => {
                   {item.image && (
                     <>
                       <div
-                        onClick={() => setDisplayFullImage(true)}
+                        onClick={() => setDisplayFullImage(index)}
                         className={style.messageBoxImageContainer}
                       >
                         <Image src={item.image} fill objectFit="cover" alt="" />
@@ -154,7 +161,7 @@ const Chat = ({ socket, username, room }: IChat) => {
                   <p className={style.time}>{item.time}</p>
                 </div>
               </div>
-              {displayFullImage && item.image && (
+              {displayFullImage !== -1 && item.image && (
                 <FullImage image={item.image} />
               )}
               {showAvatarModal && item.author && (
