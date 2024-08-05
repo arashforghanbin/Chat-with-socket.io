@@ -40,6 +40,10 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
+
+  socket.on("sendTyping", (typingData) => {
+    socket.to(typingData.room).emit("receiveTyping", typingData);
+  });
 });
 
 const PORT = 8001;

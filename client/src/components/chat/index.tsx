@@ -25,6 +25,7 @@ const Chat = ({ socket, username, room }: IChat) => {
   const [imageCaption, setImageCaption] = useState("");
   const [displayFullImage, setDisplayFullImage] = useState<number>(-1);
   const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [userTyping, setUserTyping] = useState<any>();
 
   const sendMessage = async (e: FormEvent) => {
     e.preventDefault();
@@ -55,6 +56,13 @@ const Chat = ({ socket, username, room }: IChat) => {
       console.log(data);
       setMessageList((list: any) => [...list, data]);
     });
+
+    socket.on("receiveTyping", (data: any) => {
+      setUserTyping(data);
+      setTimeout(() => {
+        setUserTyping(undefined);
+      }, 2000);
+    });
   }, [socket]);
 
   const attachRef = useRef<any>();
@@ -77,6 +85,15 @@ const Chat = ({ socket, username, room }: IChat) => {
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleChangeCurrentMessage = (e: ChangeEvent<HTMLInputElement>) => {
+    setCurrentMesssage(e.target.value);
+    const typingData = {
+      user: username,
+      room: room,
+    };
+    socket.emit("sendTyping", typingData);
   };
 
   const FullImage = ({ image }: { image: string }) => {
@@ -119,6 +136,13 @@ const Chat = ({ socket, username, room }: IChat) => {
     <div className={style.chat_container}>
       <div className={style.chat_header}>
         <h4>{room}</h4>
+        {userTyping && (
+          <p>
+            {userTyping.user + " "}
+            <span>is Typing ...</span>
+          </p>
+        )}
+        <p></p>
       </div>
       <div className={style.chat_body}>
         {messageList &&
@@ -181,9 +205,7 @@ const Chat = ({ socket, username, room }: IChat) => {
               type="text"
               value={currentMessage}
               placeholder="message ..."
-              onChange={(e) => {
-                setCurrentMesssage(e.target.value);
-              }}
+              onChange={handleChangeCurrentMessage}
             />
             {!currentMessage ? (
               <>
